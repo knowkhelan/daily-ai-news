@@ -56,56 +56,12 @@ TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 RECIPIENT_WHATSAPP_NUMBER=whatsapp:+1234567890
 ```
 
-### 4. Run the Script
+### 4. Run the Script (Local Testing)
 
-**One-time run:**
+**Test locally before deploying to GitHub:**
 ```bash
 python main.py
 ```
-
-**Run with scheduler (keeps running and sends daily):**
-```bash
-python schedule_daily.py
-```
-
-## Scheduling Options
-
-### Option 1: Built-in Python Scheduler (Recommended)
-
-The easiest way - just keep the script running:
-
-```bash
-python schedule_daily.py
-```
-
-This will:
-- Run immediately on startup
-- Schedule daily runs at 8:00 AM
-- Keep running in the background
-
-Edit the time in [schedule_daily.py](schedule_daily.py:16) to change when it runs.
-
-### Option 2: Cron (macOS/Linux)
-
-For system-level scheduling:
-
-```bash
-# Edit crontab
-crontab -e
-
-# Add this line to run daily at 8 AM
-0 8 * * * cd /Users/khelan/Documents/coding/pm-triage-agent/news-scrapper && /usr/bin/python3 main.py
-
-# Or use the shell script
-0 8 * * * /Users/khelan/Documents/coding/pm-triage-agent/news-scrapper/run_daily.sh
-```
-
-### Option 3: Windows Task Scheduler
-
-1. Open Task Scheduler
-2. Create a new task
-3. Set trigger to daily at your preferred time
-4. Set action to run `python.exe` with argument pointing to `main.py`
 
 ## Customization
 
