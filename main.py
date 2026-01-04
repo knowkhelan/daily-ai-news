@@ -124,9 +124,7 @@ class NewsScraperBot:
             article_count += 1
 
             article_text = f"*{article_count}. {article['title']}*\n"
-            article_text += f"📰 Source: {article['source']}\n"
-            article_text += f"📝 {article['summary']}\n"
-            article_text += f"🔗 {article['link']}\n\n"
+            article_text += f"📝 {article['summary']}\n\n"
 
             # Check if adding this article would exceed WhatsApp's limit (~1600 chars)
             if len(current_message) + len(article_text) > 1500:
