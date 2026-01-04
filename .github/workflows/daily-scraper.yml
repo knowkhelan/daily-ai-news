@@ -42,14 +42,12 @@ jobs:
         TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
         TWILIO_WHATSAPP_NUMBER: ${{ secrets.TWILIO_WHATSAPP_NUMBER }}
         RECIPIENT_WHATSAPP_NUMBER: ${{ secrets.RECIPIENT_WHATSAPP_NUMBER }}
-      run: |
-        cd news-scrapper
-        python main.py
+      run: python main.py
 
     - name: Upload logs (optional)
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: scraper-logs-${{ github.run_number }}
-        path: news-scrapper/*.log
+        path: '*.log'
         retention-days: 7
