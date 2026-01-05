@@ -6,13 +6,14 @@ Description: Scrapes latest AI and tech news with summaries and sends daily upda
 
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 import feedparser
 import os
 from twilio.rest import Client
 from dotenv import load_dotenv
 import time
 import re
+from email.utils import parsedate_to_datetime
 
 # Load environment variables
 load_dotenv()
@@ -60,14 +61,43 @@ class NewsScraperBot:
 
         return text
 
+    def is_within_24_hours(self, published_date):
+        """Check if article was published within the last 24 hours"""
+        try:
+            # Parse the published date
+            if isinstance(published_date, str):
+                article_time = parsedate_to_datetime(published_date)
+            else:
+                return False
+
+            # Get current time and 24 hours ago
+            now = datetime.now(article_time.tzinfo)
+            twenty_four_hours_ago = now - timedelta(hours=24)
+
+            return article_time >= twenty_four_hours_ago
+        except Exception as e:
+            # If we can't parse the date, include the article to be safe
+            return True
+
     def scrape_rss_feed(self, feed_url, source_name, max_articles=5):
-        """Scrape articles with summaries from RSS feed"""
+        """Scrape articles with summaries from RSS feed, only from last 24 hours"""
         try:
             print(f"  📡 Fetching from {source_name}...")
             feed = feedparser.parse(feed_url)
             articles = []
+            checked_count = 0
 
-            for entry in feed.entries[:max_articles]:
+            # Check more entries to ensure we get enough recent articles
+            for entry in feed.entries[:max_articles * 3]:
+                checked_count += 1
+
+                # Get published date
+                published = entry.get('published', entry.get('updated', ''))
+
+                # Check if article is from last 24 hours
+                if published and not self.is_within_24_hours(published):
+                    continue
+
                 # Extract summary from various possible fields
                 summary = ""
                 if hasattr(entry, 'summary'):
@@ -82,11 +112,19 @@ class NewsScraperBot:
                     'link': entry.link,
                     'summary': self.clean_summary(summary),
                     'source': source_name,
-                    'published': entry.get('published', 'N/A')
+                    'published': published
                 }
                 articles.append(article)
                 print(f"    ✓ {entry.title[:60]}...")
 
+                # Stop if we have enough recent articles
+                if len(articles) >= max_articles:
+                    break
+
+            if articles:
+                print(f"    📊 Found {len(articles)} articles from last 24 hours")
+            else:
+                print(f"    ⚠️  No articles from last 24 hours")
             return articles
         except Exception as e:
             print(f"  ❌ Error scraping {source_name}: {str(e)}")
@@ -114,7 +152,7 @@ class NewsScraperBot:
         today = datetime.now().strftime("%B %d, %Y")
         messages = []
         current_message = f"🤖 *AI & Tech News Daily Update*\n📅 {today}\n"
-        current_message += f"📊 {len(self.articles)} articles from {len(self.news_sources)} sources\n"
+        current_message += f"📊 {len(self.articles)} new articles (last 24 hours)\n"
         current_message += "━" * 30 + "\n\n"
 
         article_count = 0
