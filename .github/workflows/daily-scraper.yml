@@ -2,10 +2,9 @@ name: Daily AI & Tech News Scraper
 
 on:
   schedule:
-    # Runs at 8:00 AM UTC daily (adjust timezone as needed)
-    # For 8 AM EST, use: '0 13 * * *'
-    # For 8 AM PST, use: '0 16 * * *'
-    - cron: '0 8 * * *'
+    # Runs at 11:00 AM EST daily (4:00 PM UTC)
+    # Note: EST = UTC-5, so 11 AM EST = 4 PM UTC (16:00)
+    - cron: '0 16 * * *'
 
   # Allows manual trigger from GitHub Actions tab
   workflow_dispatch:
