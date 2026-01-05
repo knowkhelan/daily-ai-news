@@ -39,8 +39,7 @@ class NewsScraperBot:
             'MIT Tech Review': 'https://www.technologyreview.com/feed/',
             'The Verge AI': 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
             'VentureBeat AI': 'https://venturebeat.com/category/ai/feed/',
-            'Ars Technica': 'https://feeds.arstechnica.com/arstechnica/index',
-        }
+            'Wired AI': 'https://www.wired.com/feed/category/science/artificial-intelligence/latest/rss',}
 
         self.articles = []
 
@@ -124,7 +123,9 @@ class NewsScraperBot:
             article_count += 1
 
             article_text = f"*{article_count}. {article['title']}*\n"
-            article_text += f"📝 {article['summary']}\n\n"
+            article_text += f"📰 Source: {article['source']}\n"
+            article_text += f"📝 {article['summary']}\n"
+            article_text += f"🔗 {article['link']}\n\n"
 
             # Check if adding this article would exceed WhatsApp's limit (~1600 chars)
             if len(current_message) + len(article_text) > 1500:
