@@ -209,11 +209,6 @@ class NewsScraperBot:
 
             current_message += article_text
 
-        # Add footer to last message
-        current_message += "━" * 30 + "\n"
-        current_message += "💡 _Built with Python by Khelan_\n"
-        current_message += "⏰ Next update in 24 hours"
-
         messages.append(current_message)
 
         return messages
@@ -246,8 +241,6 @@ class NewsScraperBot:
 
         # Add footer to last message
         current_message += "━" * 30 + "\n"
-        current_message += "💡 _Built with Python by Khelan_"
-
         messages.append(current_message)
 
         return messages
