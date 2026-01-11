@@ -4,8 +4,6 @@ Author: Khelan
 Description: Scrapes latest AI and tech news with summaries and sends daily updates via WhatsApp
 """
 
-import requests
-from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import feedparser
 import os
@@ -15,13 +13,12 @@ import time
 import re
 from email.utils import parsedate_to_datetime
 
-# Load environment variables
+
 load_dotenv()
 
 class NewsScraperBot:
     def __init__(self):
         """Initialize the news scraper with API credentials"""
-        # Twilio credentials for WhatsApp
         self.twilio_account_sid = os.getenv('TWILIO_ACCOUNT_SID')
         self.twilio_auth_token = os.getenv('TWILIO_AUTH_TOKEN')
         self.twilio_whatsapp_number = os.getenv('TWILIO_WHATSAPP_NUMBER')  # Format: whatsapp:+14155238886
@@ -56,13 +53,10 @@ class NewsScraperBot:
         if not text:
             return "No summary available."
 
-        # Remove HTML tags
         text = re.sub(r'<[^>]+>', '', text)
 
-        # Remove extra whitespace
         text = ' '.join(text.split())
 
-        # Truncate to ~200 characters
         if len(text) > 200:
             text = text[:197] + "..."
 
@@ -71,19 +65,16 @@ class NewsScraperBot:
     def is_within_24_hours(self, published_date):
         """Check if article was published within the last 24 hours"""
         try:
-            # Parse the published date
             if isinstance(published_date, str):
                 article_time = parsedate_to_datetime(published_date)
             else:
                 return False
 
-            # Get current time and 24 hours ago
             now = datetime.now(article_time.tzinfo)
             twenty_four_hours_ago = now - timedelta(hours=24)
 
             return article_time >= twenty_four_hours_ago
         except Exception as e:
-            # If we can't parse the date, include the article to be safe
             return True
 
     def scrape_rss_feed(self, feed_url, source_name, max_articles=5):
@@ -131,10 +122,10 @@ class NewsScraperBot:
             if articles:
                 print(f"    📊 Found {len(articles)} articles from last 24 hours")
             else:
-                print(f"    ⚠️  No articles from last 24 hours")
+                print(f"   No articles from last 24 hours")
             return articles
         except Exception as e:
-            print(f"  ❌ Error scraping {source_name}: {str(e)}")
+            print(f" Error scraping {source_name}: {str(e)}")
             return []
 
     def is_funding_related(self, title, summary):
@@ -159,7 +150,7 @@ class NewsScraperBot:
             time.sleep(1)  # Be respectful to servers
 
         print("━" * 60)
-        print(f"✅ Successfully scraped {len(self.articles)} articles total\n")
+        print(f"Successfully scraped {len(self.articles)} articles total\n")
         return self.articles
 
     def scrape_funding_sources(self, max_per_source=10):
@@ -319,7 +310,13 @@ class NewsScraperBot:
 
         # Check if we have any content
         if not self.articles and not self.funding_news:
-            print("❌ No articles or funding news found. Exiting.")
+            print("❌ No articles or funding news found in the last 24 hours.")
+            no_news_msg = f"ℹ️ *Daily News Update*\n📅 {datetime.now().strftime('%B %d, %Y')}\n\n"
+            no_news_msg += "No new AI/tech articles or funding announcements found in the last 24 hours.\n\n"
+            no_news_msg += "✅ Scraper ran successfully at {}\n".format(datetime.now().strftime('%I:%M %p %Z'))
+            no_news_msg += "🔄 Will check again tomorrow!"
+            self.send_whatsapp_messages([no_news_msg])
+            print("📤 Sent 'no news' notification to WhatsApp")
             return
 
         # Format and send tech news
